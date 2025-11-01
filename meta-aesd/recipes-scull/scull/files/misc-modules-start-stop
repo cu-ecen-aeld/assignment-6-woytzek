@@ -1,0 +1,64 @@
+#!/bin/sh
+
+start_module() {
+    module=$1
+    device=$1
+    mode="664"
+
+    # Group: since distributions do it differently, look for wheel or use staff
+    if grep -q '^staff:' /etc/group; then
+        group="staff"
+    else
+        group="wheel"
+    fi
+
+    # invoke insmod with all arguments we got
+    insmod /usr/lib/modules/$(uname -r)/extra/$module.ko $* || exit 1
+
+    # retrieve major number
+    major=$(awk "\$2==\"$module\" {print \$1}" /proc/devices)
+
+    if [ ! -z ${major} ]; then
+        rm -f /dev/${device}
+        mknod /dev/${device} c $major 0
+        chgrp $group /dev/${device}
+        chmod $mode  /dev/${device}
+    else
+        echo "No device found in /proc/devices for driver ${module} (this driver may not allocate a device)"
+    fi
+}
+
+stop_module() {
+    module=$1
+    device=$1
+
+    if [ $# -ne 1 ]; then
+        echo "Wrong number of arguments"
+        echo "usage: $0 module_name"
+        echo "Will unload the module specified by module_name and remove assocaited device"
+        exit 1
+    fi
+
+    # invoke rmmod with all arguments we got
+    rmmod $module || exit 1
+
+    # Remove stale nodes
+    rm -f /dev/${device}
+}
+
+case $1 in
+	start)
+        start_module faulty
+        insmod /usr/lib/modules/$(uname -r)/extra/hello.ko || exit 1
+		;;
+	stop)
+        stop_module faulty
+        rmmod hello || exit 1
+		;;
+	*)
+		echo "Usage: $0 {start | stop}"
+		exit 1
+esac
+
+exit 0
+

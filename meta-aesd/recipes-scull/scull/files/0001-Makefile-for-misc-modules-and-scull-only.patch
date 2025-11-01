@@ -1,0 +1,23 @@
+From 47543a3a43025e1b9433235faaf285b2fdfd51cf Mon Sep 17 00:00:00 2001
+From: WR <wojciech.romanski@wp.pl>
+Date: Thu, 30 Oct 2025 23:16:17 +0100
+Subject: [PATCH] Makefile for misc-modules and scull only
+
+---
+ Makefile | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 7b08c49..c4f2e2e 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,8 +1,5 @@
+ 
+-SUBDIRS =  misc-progs misc-modules \
+-           skull scull scullc scullp lddbus sculld scullv shortprint simple tty \
+-	   pci usb\
+-	   sbull snull short
++SUBDIRS =  misc-modules scull
+ 
+ all: subdirs
+ 
